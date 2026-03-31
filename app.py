@@ -30,7 +30,6 @@ def load_model():
 
     # 🔥 모델 없으면 자동 다운로드
     if not os.path.exists(MODEL_PATH):
-        st.info("모델 다운로드 중...")
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
     model = models.resnet18(weights=None)
