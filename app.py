@@ -8,7 +8,6 @@ from torchvision import models, transforms
 from PIL import Image
 import gdown
 
-# 🔥 여기만 바꾸면 됨
 MODEL_URL = "https://drive.google.com/uc?id=1uAscWYWxPMT3pw9xnmZ30ubGs8pFWRvD"
 MODEL_PATH = "best_model_intel.pt"
 
@@ -21,6 +20,15 @@ CLASS_NAMES: List[str] = [
     "street",
 ]
 
+CLASS_DESC = {
+    "buildings": "건물/도시 건축물 장면",
+    "forest": "숲 장면",
+    "glacier": "빙하/눈 덮인 얼음 지형",
+    "mountain": "산 장면",
+    "sea": "바다 장면",
+    "street": "도로/거리 장면",
+}
+
 IMG_SIZE = 224
 
 
@@ -28,7 +36,6 @@ IMG_SIZE = 224
 def load_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # 🔥 모델 없으면 자동 다운로드
     if not os.path.exists(MODEL_PATH):
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
@@ -77,6 +84,10 @@ st.set_page_config(page_title="Intel Image Classifier", layout="centered")
 st.title("Intel Image Classification")
 st.write("이미지를 업로드하면 장면 클래스를 예측합니다.")
 
+st.subheader("분류 가능한 클래스")
+for name in CLASS_NAMES:
+    st.write(f"- **{name}** : {CLASS_DESC[name]}")
+
 try:
     model, device = load_model()
     st.caption(f"현재 실행 장치: {device}")
@@ -97,9 +108,10 @@ if uploaded_file is not None:
 
     st.subheader("예측 결과")
     st.write(f"예측 클래스: **{pred_label}**")
+    st.write(f"의미: **{CLASS_DESC[pred_label]}**")
     st.write(f"확신도: **{pred_conf:.2%}**")
 
     st.subheader("클래스별 확률")
     for label, prob in sorted(prob_dict.items(), key=lambda x: x[1], reverse=True):
-        st.write(f"{label}: {prob:.2%}")
+        st.write(f"{label} ({CLASS_DESC[label]}): {prob:.2%}")
         st.progress(prob)
